@@ -1,0 +1,11 @@
+#ifndef AST_UNOP_H
+#define AST_UNOP_H
+
+#include "ast.h"
+#include "ast_runtime.h"
+#include "eval_context.h"
+
+Value unop_eval(ASTBase* base, EvalContext* ctx);
+void  unop_print(ASTBase* base, EvalContext* ctx);
+
+#endif
