@@ -43,11 +43,21 @@ void run_repl(EvalContext* ctx) {
         if (!parser.had_error && program != NULL) {
             // Optional: Print the tree for debugging
             printf("AST: ");
-	    ast_print(program, ctx);
+	        ast_print(program, ctx);
             printf("\n");
 
             // Evaluate the program
-            ast_eval(program, ctx);
+            Value result = ast_eval(program, ctx);
+            printf("Result: ");
+            
+            switch (result.type) {
+                case (VAL_INT): {printf("%ld\n", result.i); break;}
+                case (VAL_FLOAT): {printf("%f\n", result.f); break;}
+                case (VAL_BOOL): {printf("%s\n", result.b ? "[true]" : "[false]"); break;}
+                case (VAL_STRING): {printf("%s\n", result.s.data); break;}
+                default: {printf("Unimplemented type\n"); break; }
+            }
+
         }
 
         // Clean up the AST for this line

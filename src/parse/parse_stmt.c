@@ -1,4 +1,5 @@
 // parse_stmt.c
+#include "lexer.h"
 #include "parse_funcs.h"
 #include <stdlib.h>
 #include "block.h"
@@ -8,16 +9,18 @@
 ASTBase* parse_stmt(Parser* parser) {
     if (match_token(parser, TOKEN_LBRACE)) return parse_block(parser);
     if (check_token(parser, TOKEN_IDENTIFIER) 
-        && match_token(parser, TOKEN_ASSIGN)) 
+        && lexer_peek_next(&parser->lexer) == '=') 
         return parse_assign(parser);
     return parse_expr_stmt(parser);
 }
 
 ASTBase* parse_assign(Parser* parser) {
+    advance(parser);
     ASTBase* id = identifier_new(parser->previous.start, parser->previous.length);
     consume(parser, TOKEN_ASSIGN, "Expect '=' after identifier.");
     ASTBase* value = parse_expr(parser);
-    consume(parser, TOKEN_SEMICOLON, "Expect ';' after value.");
+    if (!check_token(parser, TOKEN_EOF)) 
+        consume(parser, TOKEN_SEMICOLON, "Expect ';' after value.");
     return assign_new(id, value);
 }
 

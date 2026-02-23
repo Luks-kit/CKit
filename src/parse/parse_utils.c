@@ -65,4 +65,3 @@ void parser_error(Parser* parser, const char* message) {
             message);
 }
 
-
