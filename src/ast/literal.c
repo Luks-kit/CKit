@@ -1,5 +1,8 @@
 #include "literal.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 
 Value literal_eval(ASTBase* base, EvalContext* ctx)
 {
@@ -55,4 +58,58 @@ void literal_print(ASTBase* base, EvalContext* ctx)
             break;
         }
     }
+}
+
+
+
+ASTBase* literal_new_int(long value) {
+    IntLiteral* lit = malloc(sizeof(IntLiteral));
+    lit->literal.base.type = AST_LITERAL;
+    lit->literal.lit_type = AST_LIT_INT;
+    lit->value = value;
+    return &lit->literal.base;
+}
+
+ASTBase* literal_new_string(const char* data, size_t length) {
+    StrLiteral* lit = malloc(sizeof(StrLiteral));
+    lit->literal.base.type = AST_LITERAL;
+    lit->literal.lit_type = AST_LIT_STR;
+
+    char* copy = malloc(length);
+    memcpy(copy, data, length);
+
+    lit->data = copy;
+    lit->length = length;
+
+    return &lit->literal.base;
+}
+
+ASTBase* literal_new_float(double value) {
+    FloatLiteral* lit = malloc(sizeof(FloatLiteral));
+    lit->literal.base.type = AST_LITERAL;
+    lit->literal.lit_type = AST_LIT_FLOAT;
+    lit->value = value;
+    
+    return &lit->literal.base;
+}
+
+
+ASTBase* literal_new_bool(int value) {
+    BoolLiteral* lit = malloc(sizeof(BoolLiteral));
+    lit->literal.base.type = AST_LITERAL;
+    lit->literal.lit_type = AST_LIT_BOOL;
+    lit->value = value;
+
+    return &lit->literal.base;
+}
+
+void literal_destroy(ASTBase* node, EvalContext* ctx) {
+    Literal* lit = (Literal*)node;
+
+    if (lit->lit_type == AST_LIT_STR) {
+        StrLiteral* s = (StrLiteral*)node;
+        free((void*)s->data);
+    }
+
+    free(node);
 }

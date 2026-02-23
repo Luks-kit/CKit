@@ -5,8 +5,8 @@
 #include "value.h"
 #include "eval_context.h"
 
-typedef void   (*AstCtorFn)(ASTBase* node);
-typedef void   (*AstDtorFn)(ASTBase* node);
+typedef void   (*AstCtorFn)(ASTBase* node, EvalContext* ctx);
+typedef void   (*AstDtorFn)(ASTBase* node, EvalContext* ctx);
 typedef Value  (*AstEvalFn)(ASTBase* node, EvalContext* ctx);
 typedef void   (*AstPrintFn)(ASTBase* node, EvalContext* ctx);
 
@@ -25,12 +25,12 @@ typedef struct Runtime {
    Dispatch Helpers
    ================================ */
 
-static inline void ast_ctor(Runtime* rt, ASTBase* node) {
-    rt->ctor_table[node->type](node);
+static inline void ast_ctor(ASTBase* node, EvalContext* ctx) {
+    ctx->runtime->ctor_table[node->type](node, ctx);
 }
 
-static inline void ast_dtor(Runtime* rt, ASTBase* node) {
-    rt->dtor_table[node->type](node);
+static inline void ast_dtor(ASTBase* node, EvalContext* ctx) {
+    ctx->runtime->dtor_table[node->type](node, ctx);
 }
 
 static inline Value ast_eval(ASTBase* node, EvalContext* ctx) {

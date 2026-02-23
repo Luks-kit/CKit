@@ -1,5 +1,7 @@
 #include "binop.h"
 #include <stdio.h>
+#include <stdlib.h>
+
 
 static double to_double(Value v)
 {
@@ -48,4 +50,21 @@ void binop_print(ASTBase* base, EvalContext* ctx)
     printf(" %c ", bin->op);
     ast_print(bin->rhs, ctx);
     printf(")");
+}
+
+
+ASTBase* binop_new(char op, ASTBase* lhs, ASTBase* rhs) {
+    BinOp* bin = malloc(sizeof(BinOp));
+    bin->base.type = AST_BINOP;
+    bin->op = op;
+    bin->lhs = lhs;
+    bin->rhs = rhs;
+    return &bin->base;
+}
+
+void binop_destroy(ASTBase* node, EvalContext* ctx) {
+    BinOp* bin = (BinOp*)node;
+    ast_dtor(bin->lhs, ctx);
+    ast_dtor(bin->rhs, ctx);
+    free(bin);
 }

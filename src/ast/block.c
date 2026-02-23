@@ -35,3 +35,26 @@ void block_print(ASTBase* base, EvalContext* ctx)
     }
     printf("}");
 }
+
+ASTBase* block_new(ASTBase** statements, size_t count) {
+    Block* block = malloc(sizeof(Block));
+    block->base.type = AST_BLOCK;
+
+    block->statements = malloc(sizeof(ASTBase*) * count);
+    for (size_t i = 0; i < count; i++)
+        block->statements[i] = statements[i];
+
+    block->count = count;
+
+    return &block->base;
+}
+
+void block_destroy(ASTBase* node, EvalContext* ctx) {
+    Block* block = (Block*)node;
+
+    for (size_t i = 0; i < block->count; i++)
+        ast_dtor(block->statements[i], ctx);
+
+    free(block->statements);
+    free(block);
+}

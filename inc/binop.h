@@ -8,4 +8,7 @@
 Value binop_eval(ASTBase* base, EvalContext* ctx);
 void  binop_print(ASTBase* base, EvalContext* ctx);
 
+ASTBase* binop_new(char op, ASTBase* lhs, ASTBase* rhs);
+void binop_destroy(ASTBase* node, EvalContext* ctx);
+
 #endif
