@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 project(CKit C)
 
-include_directories(inc/)
+include_directories(inc/ inc/ast/ inc/environment/)
 
 add_executable(CKit
 	src/ast/assign.c
