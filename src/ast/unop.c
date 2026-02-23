@@ -1,5 +1,6 @@
 #include "unop.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 Value unop_eval(ASTBase* base, EvalContext* ctx)
 {
@@ -20,4 +21,18 @@ void unop_print(ASTBase* base, EvalContext* ctx)
     UnOp* un = (UnOp*)base;
     printf("%c", un->op);
     ast_print(un->operand, ctx);
+}
+
+ASTBase* unop_new(char op, ASTBase* operand) {
+    UnOp* un = malloc(sizeof(UnOp));
+    un->op = op;
+    un->operand = operand;
+    return &un->base;
+
+}
+
+void unop_destroy(ASTBase* base, EvalContext* ctx) {
+    UnOp* un = (UnOp*)base;
+    ast_dtor(&un->base, ctx);
+    free(un);
 }

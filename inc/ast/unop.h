@@ -8,4 +8,6 @@
 Value unop_eval(ASTBase* base, EvalContext* ctx);
 void  unop_print(ASTBase* base, EvalContext* ctx);
 
+ASTBase* unop_new(char op, ASTBase* operand);
+void unop_destroy(ASTBase* base, EvalContext* ctx);
 #endif

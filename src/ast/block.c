@@ -39,12 +39,14 @@ void block_print(ASTBase* base, EvalContext* ctx)
 ASTBase* block_new(ASTBase** statements, size_t count) {
     Block* block = malloc(sizeof(Block));
     block->base.type = AST_BLOCK;
+    block->count = count;	
 
-    block->statements = malloc(sizeof(ASTBase*) * count);
-    for (size_t i = 0; i < count; i++)
-        block->statements[i] = statements[i];
-
-    block->count = count;
+    if (count == 0) {block->statements = NULL;}
+    else {
+    	block->statements = malloc(sizeof(ASTBase*) * count);
+    	for (size_t i = 0; i < count; i++)
+            block->statements[i] = statements[i];
+    }
 
     return &block->base;
 }

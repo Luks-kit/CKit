@@ -1,6 +1,11 @@
 #include "lexer.h"
-#include <string.h>
-#include 
+#include <string.h> 
+
+void lexer_init(Lexer* lexer, const char* source) {
+    lexer->start = source;
+    lexer->current = source;
+    lexer->line = 1;
+}
 
 char lexer_advance(Lexer* lexer) {
     char c = *lexer->current;
@@ -105,6 +110,7 @@ Token lexer_next_token(Lexer* lexer) {
     if (is_alpha(c)) return lex_identifier(lexer);
 
     switch (c) {
+	case '"': return lex_string(lexer);
         case '+': return make_token(lexer, TOKEN_PLUS);
         case '-': return make_token(lexer, TOKEN_MINUS);
         case '*': return make_token(lexer, TOKEN_MUL);

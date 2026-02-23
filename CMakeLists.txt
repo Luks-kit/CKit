@@ -1,7 +1,14 @@
 cmake_minimum_required(VERSION 3.10)
 project(CKit C)
 
-include_directories(inc/ inc/ast/ inc/environment/)
+set(CMAKE_C_STANDARD 23)
+set(CMAKE_C_STANDARD_REQUIRED True)
+set(CMAKE_C_EXTENSIONS OFF)
+
+
+include_directories(inc/ inc/ast/ inc/environment/ inc/parse)
+
+
 
 add_executable(CKit
 	src/ast/assign.c
@@ -15,4 +22,8 @@ add_executable(CKit
 	src/eval/env.c
 	src/register.c
 	src/main.c
-	)	
+	src/parse/lexer.c
+	src/parse/parse_expr.c
+	src/parse/parse_stmt.c
+	src/parse/parse_utils.c
+)	

@@ -1,5 +1,12 @@
 // parse_expr.c
+#include <stdlib.h>
 #include "parse_funcs.h"
+#include "ast.h"
+#include "binop.h"
+#include "unop.h"
+#include "literal.h"
+#include "ident.h"
+#include "block.h"
 
 
 ASTBase* parse_precedence(Parser* parser, Precedence prec) {
@@ -46,16 +53,16 @@ ASTBase* parse_grouping(Parser* parser) {
 }
 
 ASTBase* parse_unary(Parser* parser) {
-    TokenType operator_type = parser->previous.type;
+    Token op = parser->previous;
     ASTBase* right = parse_precedence(parser, PREC_UNARY);
-    return unary_new(operator_type, right);
+    return unop_new(op.start[0], right);
 }
 
 ASTBase* parse_binary(Parser* parser, ASTBase* left) {
-    TokenType operator_type = parser->previous.type;
-    ParseRule rule = get_rule(operator_type);
+    Token operator = parser->previous;
+    ParseRule rule = get_rule(operator.type);
     ASTBase* right = parse_precedence(parser, rule.precedence + 1);
-    return binop_new(operator_type, left, right);
+    return binop_new(operator.start[0], left, right);
 }
 
 ParseRule rules[] = {
@@ -74,3 +81,7 @@ ParseRule rules[] = {
     [TOKEN_LT]            = {NULL, parse_binary, PREC_COMPARISON},
     [TOKEN_GT]            = {NULL, parse_binary, PREC_COMPARISON},
 };
+
+ParseRule get_rule(TokenType type) {
+    return rules[type];
+}

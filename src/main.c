@@ -1,53 +1,87 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include "parser.h" // Assuming this contains your Parser struct and funcs
+#include "lexer.h"
+#include "ast.h"
 #include "ast_runtime.h"
 #include "eval_context.h"
-#include "literal.h"
-#include "ident.h"
-#include "binop.h"
-#include "unop.h"
-#include "assign.h"
-#include "block.h"
 #include "env.h"
 
-int main(void)
-{
+#define LINE_BUFFER_SIZE 1024
+
+void run_repl(EvalContext* ctx) {
+    char line[LINE_BUFFER_SIZE];
+
+    printf("CKit REPL (v0.1)\n");
+    printf("Press Ctrl+C to exit.\n");
+
+    for (;;) {
+        printf("> ");
+
+        if (!fgets(line, sizeof(line), stdin)) {
+            printf("\n");
+            break;
+        }
+
+        // Handle empty input
+	// 1. Strip the newline so the Lexer hits '\0' (EOF) immediately after the code
+        line[strcspn(line, "\n")] = '\0';
+
+        if (strlen(line) == 0) continue;
+        if (strcmp(line, "exit") == 0) break;
+
+
+        // Initialize components
+        Parser parser;
+        lexer_init(&parser.lexer, line);
+        parser.had_error = false;
+        
+        // Use your parse_program entry point
+        ASTBase* program = parse_program(&parser);
+
+        if (!parser.had_error && program != NULL) {
+            // Optional: Print the tree for debugging
+            printf("AST: ");
+	    ast_print(program, ctx);
+            printf("\n");
+
+            // Evaluate the program
+            ast_eval(program, ctx);
+        }
+
+        // Clean up the AST for this line
+        if (program) {
+            ast_dtor(program, ctx);
+        }
+    }
+}
+
+int main(int argc, char* argv[]) {
     Runtime rt;
     runtime_init(&rt);
     ast_register_all(&rt);
-
+	
     EvalContext ctx = {0};
     ctx.current_env = env_push(NULL);
-    ctx.runtime = &rt;
-
-    /* x = 10 */
-    IntLiteral* ten = (IntLiteral*)literal_new_int(10); 
-
-    Identifier* x = (Identifier*)identifier_new("x", 1);
+    ctx.runtime = &rt;// Assuming you have a constructor
     
-    Assign* assign_x = (Assign*)assign_new(&x->base, &ten->literal.base);
-
-    /* y = x + 20 */
-    IntLiteral* twenty = (IntLiteral*)literal_new_int(20); 
-
-    Identifier* y = (Identifier*)identifier_new("y", 1);   
+    if (argc == 1) {
+        // Run REPL
+        run_repl(&ctx);
+    } else if (argc == 2) {
+        // Run File (Optional functionality)
+        // char* source = read_file(argv[1]);
+        // ... parse and eval ...
+    } else {
+        fprintf(stderr, "Usage: ckit [path]\n");
+        return 64;
+    }
     
-    Identifier* x_again = (Identifier*)identifier_new("x", 1); 
-
-    BinOp* add = (BinOp*)binop_new('+', &x_again->base, &twenty->literal.base);    
-
-    Assign* assign_y = (Assign*)assign_new(&y->base, &add->base);
-
-    /* Block: { x = 10; y = x + 20; } */
-    ASTBase* statements[] = {&assign_x->base, &assign_y->base};
-    Block* block = (Block*)block_new(statements, 2); 
-
-    Value result = ast_eval(&(block->base), &ctx);
-    ast_print(&(block->base), &ctx);
-    printf("\nResult type: %d\n", result.type);
-    printf("Result: y = %ld\n", result.i);
-    
-    ast_dtor(&block->base, &ctx);
     env_pop(ctx.current_env);
+
     return 0;
 }
+
+
+
