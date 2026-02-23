@@ -57,5 +57,6 @@ static inline char lexer_peek_next(Lexer* lexer) { return *(lexer->current + 1);
 
 char lexer_advance(Lexer* lexer);
 
+Token lexer_next_token(Lexer* lexer);
 
 #endif
