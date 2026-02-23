@@ -40,6 +40,6 @@ ASTBase* assign_new(ASTBase* target, ASTBase* value) {
 void assign_destroy(ASTBase* node, EvalContext* ctx) {
     Assign* a = (Assign*)node;
     ast_dtor(&a->target->base, ctx);
-    ast_dtor(&a->value, ctx);
+    ast_dtor(a->value, ctx);
     free(a);
 }

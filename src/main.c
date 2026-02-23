@@ -21,55 +21,33 @@ int main(void)
     ctx.runtime = &rt;
 
     /* x = 10 */
-    IntLiteral* ten = malloc(sizeof(IntLiteral));
-    ten->literal.base.type = AST_LITERAL;
-    ten->literal.lit_type = AST_LIT_INT;
-    ten->value = 10;
+    IntLiteral* ten = (IntLiteral*)literal_new_int(10); 
 
-    Identifier* x = malloc(sizeof(Identifier));
-    x->base.type = AST_IDENTIFIER;
-    x->name = "x";
-    x->name_length = 1;
-
-    Assign* assign_x = malloc(sizeof(Assign));
-    assign_x->base.type = AST_ASSIGN;
-    assign_x->target = x;
-    assign_x->value = &(ten->literal.base);
+    Identifier* x = (Identifier*)identifier_new("x", 1);
+    
+    Assign* assign_x = (Assign*)assign_new(&x->base, &ten->literal.base);
 
     /* y = x + 20 */
-    IntLiteral* twenty = malloc(sizeof(IntLiteral));
-    twenty->literal.base.type = AST_LITERAL;
-    twenty->literal.lit_type = AST_LIT_INT;
-    twenty->value = 20;
+    IntLiteral* twenty = (IntLiteral*)literal_new_int(20); 
 
-    Identifier* y = malloc(sizeof(Identifier));
-    y->base.type = AST_IDENTIFIER;
-    y->name = "y";
-    y->name_length = 1;
+    Identifier* y = (Identifier*)identifier_new("y", 1);   
+    
+    Identifier* x_again = (Identifier*)identifier_new("x", 1); 
 
-    BinOp* add = malloc(sizeof(BinOp));
-    add->base.type = AST_BINOP;
-    add->op = '+';
-    add->lhs = &x->base;
-    add->rhs = &(twenty->literal.base);
+    BinOp* add = (BinOp*)binop_new('+', &x_again->base, &twenty->literal.base);    
 
-    Assign* assign_y = malloc(sizeof(Assign));
-    assign_y->base.type = AST_ASSIGN;
-    assign_y->target = y;
-    assign_y->value = &add->base;
+    Assign* assign_y = (Assign*)assign_new(&y->base, &add->base);
 
     /* Block: { x = 10; y = x + 20; } */
     ASTBase* statements[] = {&assign_x->base, &assign_y->base};
-    Block* block = malloc(sizeof(Block));
-    block->base.type = AST_BLOCK;
-    block->statements = statements;
-    block->count = 2;
+    Block* block = (Block*)block_new(statements, 2); 
 
     Value result = ast_eval(&(block->base), &ctx);
     ast_print(&(block->base), &ctx);
     printf("\nResult type: %d\n", result.type);
     printf("Result: y = %ld\n", result.i);
-
+    
+    ast_dtor(&block->base, &ctx);
     env_pop(ctx.current_env);
     return 0;
 }

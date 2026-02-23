@@ -2,11 +2,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-static void default_ctor(ASTBase* node)  { (void)node; }
-static void default_dtor(ASTBase* node)  { (void)node; }
+static void default_ctor(ASTBase* node, EvalContext* ctx)  { (void)node; }
+static void default_dtor(ASTBase* node, EvalContext* ctx)  { (void)node; }
 static Value default_eval(ASTBase* node, struct EvalContext* ctx) {
     (void)node; (void)ctx; return (Value){ .type = VAL_NULL }; }
-static void default_print(ASTBase* node) { (void)node; printf("<unknown>"); }
+static void default_print(ASTBase* node, EvalContext* ctx) { (void)node; printf("<unknown>"); }
 
 void runtime_init(Runtime* rt) {
     for (int i = 0; i < AST_TYPE_COUNT; i++) {
