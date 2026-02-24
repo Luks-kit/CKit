@@ -7,10 +7,10 @@
 Value block_eval(ASTBase* base, EvalContext* ctx)
 {
     Block* block = (Block*)base;
-
     /* Push new lexical scope */
+
     Env* old_env = ctx->current_env;
-    ctx->current_env = env_push(old_env);
+    if(!block->is_global) ctx->current_env = env_push(old_env);
 
     Value result = { .type = VAL_NULL };
 
@@ -20,7 +20,7 @@ Value block_eval(ASTBase* base, EvalContext* ctx)
     }
 
     /* Pop lexical scope */
-    ctx->current_env = env_pop(ctx->current_env);
+    if(!block->is_global) ctx->current_env = env_pop(ctx->current_env);
 
     return result;
 }
@@ -36,10 +36,11 @@ void block_print(ASTBase* base, EvalContext* ctx)
     printf("}");
 }
 
-ASTBase* block_new(ASTBase** statements, size_t count) {
+ASTBase* block_new(ASTBase** statements, size_t count, bool isGlobal) {
     Block* block = malloc(sizeof(Block));
     block->base.type = AST_BLOCK;
     block->count = count;	
+    block->is_global = isGlobal;
 
     if (count == 0) {block->statements = NULL;}
     else {

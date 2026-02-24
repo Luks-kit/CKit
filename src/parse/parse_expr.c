@@ -6,8 +6,6 @@
 #include "unop.h"
 #include "literal.h"
 #include "ident.h"
-#include "block.h"
-
 
 ASTBase* parse_precedence(Parser* parser, Precedence prec) {
     advance(parser);
@@ -46,6 +44,11 @@ ASTBase* parse_identifier(Parser* parser) {
     return identifier_new(parser->previous.start, parser->previous.length);
 }
 
+ASTBase* parse_string(Parser* parser) {
+    Token t = parser->previous;
+    return literal_new_string(t.start + 1, t.length - 2);
+}
+
 ASTBase* parse_grouping(Parser* parser) {
     ASTBase* expr = parse_expr(parser);
     consume(parser, TOKEN_RPAREN, "Expect ')' after expression.");
@@ -65,10 +68,13 @@ ASTBase* parse_binary(Parser* parser, ASTBase* left) {
     return binop_new(operator.start[0], left, right);
 }
 
+
+
 ParseRule rules[] = {
     [TOKEN_INT_LITERAL]   = {parse_number, NULL,   PREC_NONE},
     [TOKEN_FLOAT_LITERAL] = {parse_number, NULL,   PREC_NONE},
     [TOKEN_IDENTIFIER]    = {parse_identifier, NULL, PREC_NONE},
+    [TOKEN_STRING_LITERAL] = {parse_string, NULL, PREC_NONE},
     [TOKEN_LPAREN]        = {parse_grouping, NULL, PREC_NONE},
 
     [TOKEN_PLUS]          = {NULL, parse_binary, PREC_TERM},

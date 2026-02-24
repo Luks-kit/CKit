@@ -25,7 +25,7 @@ Value literal_eval(ASTBase* base, EvalContext* ctx)
         case AST_LIT_STR: {
             StrLiteral* s = (StrLiteral*)base;
             return (Value){ .type = VAL_STRING,
-                            .s = { s->data, s->length } };
+                            .s = { strndup(s->data, s->length), s->length } };
         }
     }
 

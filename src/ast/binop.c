@@ -1,7 +1,7 @@
 #include "binop.h"
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <string.h>
 
 static double to_double(Value v)
 {
@@ -17,6 +17,20 @@ Value binop_eval(ASTBase* base, EvalContext* ctx)
     Value right = ast_eval(bin->rhs, ctx);
 
     if (ctx->has_error) return (Value){ .type = VAL_NULL };
+    
+    if (left.type == VAL_STRING && right.type == VAL_STRING) {
+        Value res;
+        res.type = VAL_STRING;
+        res.s.length = left.s.length + right.s.length;
+        char* combined = malloc(res.s.length + 1);
+    
+        memcpy(combined, left.s.data, left.s.length);
+        memcpy(combined + left.s.length, right.s.data, right.s.length);
+        combined[res.s.length] = '\0';
+    
+        res.s.data = combined;
+        return res;
+    }
 
     if (left.type == VAL_INT && right.type == VAL_INT) {
         switch (bin->op) {

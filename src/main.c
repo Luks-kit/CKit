@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include "parser.h" // Assuming this contains your Parser struct and funcs
 #include "lexer.h"
@@ -54,7 +53,7 @@ void run_repl(EvalContext* ctx) {
                 case (VAL_INT): {printf("%ld\n", result.i); break;}
                 case (VAL_FLOAT): {printf("%f\n", result.f); break;}
                 case (VAL_BOOL): {printf("%s\n", result.b ? "[true]" : "[false]"); break;}
-                case (VAL_STRING): {printf("%s\n", result.s.data); break;}
+                case (VAL_STRING): {printf("%.*s\n", (int)result.s.length ,result.s.data); break;}
                 default: {printf("Unimplemented type\n"); break; }
             }
 

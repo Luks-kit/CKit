@@ -19,6 +19,9 @@ add_executable(CKit
 	src/ast/ident.c
 	src/ast/literal.c
 	src/ast/unop.c
+    src/ast/decl.c
+    src/ast/if.c
+    src/ast/while.c
 	src/eval/env.c
 	src/register.c
 	src/main.c

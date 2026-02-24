@@ -101,5 +101,17 @@ typedef struct Object {
 } Object;
 
 
+static inline const char* type_to_string(ValueType type) {
+    switch (type) {
+        case VAL_INT:    return "int";
+        case VAL_FLOAT:  return "float";
+        case VAL_BOOL:   return "bool";
+        case VAL_STRING: return "str";
+        case VAL_NULL:   return "null";
+        // ... add others
+        default:         return "unknown";
+    }
+}
+
 
 #endif /* VALUE_H */

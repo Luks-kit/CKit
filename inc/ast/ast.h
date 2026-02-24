@@ -2,7 +2,8 @@
 #define AST_H
 
 #include <stddef.h>
-
+#include <stdbool.h>
+#include "value.h"
 /* ================================
    AST Type Enums
    ================================ */
@@ -16,6 +17,10 @@ typedef enum {
     AST_CALL,
     AST_IDENTIFIER,
     AST_ASSIGN,
+    AST_IF,
+    AST_WHILE,
+    AST_VAR_DECL,
+    AST_TYPE_DECL,
     AST_BLOCK,
     AST_TYPE_COUNT
 } AST_TYPE;
@@ -125,6 +130,7 @@ typedef struct {
     ASTBase base;
     ASTBase** statements;
     size_t count;
+    bool is_global;
 } Block;
 
 
@@ -155,5 +161,30 @@ typedef struct {
     ASTBase** args;
     size_t arg_count;
 } Call;
+
+typedef struct {
+    ASTBase base;
+    ValueType type;      // The "Strong" part of the typing
+    const char* name;
+    size_t name_len;
+    ASTBase* initializer; // Optional (e.g., int x; vs int x = 5;)
+} Declaration;
+
+/* --- If Statement Node --- */
+typedef struct {
+    ASTBase base;
+    ASTBase* condition;
+    ASTBase* then_branch;
+    ASTBase* else_branch; // NULL if no else
+} IfStmt;
+
+/* --- While Loop Node --- */
+typedef struct {
+    ASTBase base;
+    ASTBase* condition;
+    ASTBase* body;
+} WhileStmt;
+
+
 
 #endif /* AST_H */

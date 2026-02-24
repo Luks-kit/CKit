@@ -12,6 +12,23 @@ typedef enum {
     TOKEN_STRING_LITERAL,
     TOKEN_IDENTIFIER,
 
+    TOKEN_IF,
+    TOKEN_ELSE,
+    TOKEN_WHILE,
+    TOKEN_FOR,
+    TOKEN_VAR,
+    TOKEN_RETURN,
+    TOKEN_TRUE,
+    TOKEN_FALSE,
+
+    TOKEN_FN, 
+    TOKEN_LET, 
+    TOKEN_INT,
+    TOKEN_FLOAT, 
+    TOKEN_BOOL, 
+    TOKEN_STR, 
+    TOKEN_PRINT,
+    
     // Operators
     TOKEN_PLUS,        // +
     TOKEN_MINUS,       // -
@@ -22,6 +39,7 @@ typedef enum {
     TOKEN_RPAREN,      // )
     TOKEN_LBRACE,      // {
     TOKEN_RBRACE,      // }
+    TOKEN_COLON,       // :
     TOKEN_SEMICOLON,   // ;
 
     // Comparison operators

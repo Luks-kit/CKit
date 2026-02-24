@@ -24,6 +24,14 @@ void parser_error(Parser* parser, const char* message);
 
 ParseRule get_rule(TokenType type);
 
-
+static inline ValueType map_token_to_type(TokenType type) {
+    switch (type) {
+        case TOKEN_INT:   return VAL_INT;
+        case TOKEN_FLOAT: return VAL_FLOAT;
+        case TOKEN_STR:   return VAL_STRING;
+        case TOKEN_BOOL:  return VAL_BOOL;
+        default:          return VAL_NULL;
+    }
+}
 
 #endif

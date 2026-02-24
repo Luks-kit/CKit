@@ -8,7 +8,7 @@
 Value block_eval(ASTBase* base, EvalContext* ctx);
 void  block_print(ASTBase* base, EvalContext* ctx);
 
-ASTBase* block_new(ASTBase** statements, size_t count);
+ASTBase* block_new(ASTBase** statements, size_t count, bool isGlobal);
 void block_destroy(ASTBase* node, EvalContext* ctx);
 
 #endif

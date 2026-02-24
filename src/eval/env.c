@@ -42,7 +42,7 @@ void env_set(Env* env, const char* name, size_t len, Value val) {
         env->capacity = new_cap;
     }
 
-    env->entries[env->count].name = name;
+    env->entries[env->count].name = strndup(name, len);
     env->entries[env->count].name_length = len;
     env->entries[env->count].value = val;
     env->count++;
@@ -65,6 +65,11 @@ Env* env_push(Env* parent) {
    ================================ */
 Env* env_pop(Env* env) {
     if (!env) return NULL;
+
+    for (size_t i = 0; i < env->count; i++) {
+        // free() the duplicated strings
+        free((void*)env->entries[i].name); 
+    }
 
     free(env->entries);
     Env* parent = env->parent;

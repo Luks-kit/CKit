@@ -1,4 +1,7 @@
+#include "ast.h"
 #include "ast_runtime.h"
+#include "decl.h"
+#include "if.h"
 #include "literal.h"
 #include "binop.h"
 #include "unop.h"
@@ -6,6 +9,7 @@
 #include "assign.h"
 #include "block.h"
 #include "call.h"
+#include "while.h"
 
 void ast_register_all(Runtime* rt)
 {
@@ -15,5 +19,8 @@ void ast_register_all(Runtime* rt)
     ast_register(rt, AST_UNOP, NULL, unop_destroy, unop_eval, unop_print);
     ast_register(rt, AST_CALL, NULL, NULL, call_eval, call_print);
     ast_register(rt, AST_ASSIGN, NULL, assign_destroy, assign_eval, assign_print);
-    ast_register(rt, AST_BLOCK,  NULL, block_destroy, block_eval,  block_print); 
+    ast_register(rt, AST_BLOCK,  NULL, block_destroy, block_eval,  block_print);
+    ast_register(rt, AST_IF, NULL, if_destroy, if_eval, if_print);
+    ast_register(rt, AST_WHILE, NULL, while_destroy, while_eval, while_print);
+    ast_register(rt, AST_VAR_DECL, NULL, decl_destroy, decl_eval, decl_print);
 }

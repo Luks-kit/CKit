@@ -75,12 +75,22 @@ Token lex_identifier(Lexer* lexer) {
     while (is_alnum(lexer_peek(lexer))) lexer_advance(lexer);
     size_t length = (size_t)(lexer->current - lexer->start);
 
-    // Keywords: true, false
-    if (length == 4 && strncmp(lexer->start, "true", 4) == 0) 
-        return make_token(lexer, TOKEN_BOOL_LITERAL);
-    if (length == 5 && strncmp(lexer->start, "false", 5) == 0) 
-        return make_token(lexer, TOKEN_BOOL_LITERAL);
-
+    // Simple keyword mapping
+    #define KEYWORD(s, t) \
+    if (length == strlen(s) && strncmp(lexer->start, s, length) == 0) return make_token(lexer, t)
+    
+    KEYWORD("if",    TOKEN_IF);
+    KEYWORD("else",  TOKEN_ELSE);
+    KEYWORD("while", TOKEN_WHILE);
+    KEYWORD("let",   TOKEN_LET);
+    KEYWORD("int",   TOKEN_INT);
+    KEYWORD("float", TOKEN_FLOAT);
+    KEYWORD("str",   TOKEN_STR);
+    KEYWORD("bool",  TOKEN_BOOL);
+    KEYWORD("true",  TOKEN_BOOL_LITERAL);
+    KEYWORD("false", TOKEN_BOOL_LITERAL);
+    
+    #undef KEYWORD
     return make_token(lexer, TOKEN_IDENTIFIER);
 }
 
