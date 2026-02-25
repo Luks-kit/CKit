@@ -6,6 +6,7 @@
 #include "ast_runtime.h"
 #include "eval_context.h"
 #include "env.h"
+#include "call.h"
 
 #define LINE_BUFFER_SIZE 1024
 
@@ -39,30 +40,32 @@ void run_repl(EvalContext* ctx) {
         // Use your parse_program entry point
         ASTBase* program = parse_program(&parser);
 
-        if (!parser.had_error && program != NULL) {
-            // Optional: Print the tree for debugging
-            printf("AST: ");
-	        ast_print(program, ctx);
-            printf("\n");
+        if (parser.had_error || program == NULL) 
+        {printf("Parser error, skipping execution\n"); parser.had_error = false; continue;}
+        
+        if(!ast_validate(program, ctx) || ctx->has_error)
+        {printf("Sematic error: %s\n", ctx->error_message); ctx->has_error = false; continue;}
 
-            // Evaluate the program
-            Value result = ast_eval(program, ctx);
-            printf("Result: ");
-            
-            switch (result.type) {
-                case (VAL_INT): {printf("%ld\n", result.i); break;}
-                case (VAL_FLOAT): {printf("%f\n", result.f); break;}
-                case (VAL_BOOL): {printf("%s\n", result.b ? "[true]" : "[false]"); break;}
-                case (VAL_STRING): {printf("%.*s\n", (int)result.s.length ,result.s.data); break;}
-                default: {printf("Unimplemented type\n"); break; }
-            }
+        // Optional: Print the tree for debugging
+        printf("AST: ");
+        ast_print(program, ctx);
+        printf("\n");
+        
 
+        // Evaluate the program
+        Value result = ast_eval(program, ctx);
+        printf("Result: ");
+        
+        switch (result.type) {
+            case (VAL_INT): {printf("%ld\n", result.i); break;}
+            case (VAL_FLOAT): {printf("%f\n", result.f); break;}
+            case (VAL_BOOL): {printf("%s\n", result.b ? "[true]" : "[false]"); break;}
+            case (VAL_STRING): {printf("%.*s\n", (int)result.s.length ,result.s.data); break;}
+            case (VAL_NULL): {printf("Null Type(Nothing)\n"); break;}
+            default: {printf("Unimplemented type\n"); break; }
         }
 
-        // Clean up the AST for this line
-        if (program) {
-            ast_dtor(program, ctx);
-        }
+        if (program) ast_dtor(program, ctx);
     }
 }
 
@@ -72,17 +75,15 @@ int main(int argc, char* argv[]) {
     ast_register_all(&rt);
 	
     EvalContext ctx = {0};
-    ctx.current_env = env_push(NULL);
+    ctx.global_env = env_push(NULL);
+    ctx.current_env = env_push(ctx.global_env);
     ctx.runtime = &rt;// Assuming you have a constructor
     
-    if (argc == 1) {
-        // Run REPL
-        run_repl(&ctx);
-    } else if (argc == 2) {
-        // Run File (Optional functionality)
-        // char* source = read_file(argv[1]);
-        // ... parse and eval ...
-    } else {
+    setup_globals(ctx.global_env);
+
+    if (argc == 1)
+        run_repl(&ctx); 
+    else {
         fprintf(stderr, "Usage: ckit [path]\n");
         return 64;
     }

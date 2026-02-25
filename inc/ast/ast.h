@@ -21,6 +21,7 @@ typedef enum {
     AST_WHILE,
     AST_VAR_DECL,
     AST_TYPE_DECL,
+    AST_FUNC_DECL,
     AST_BLOCK,
     AST_TYPE_COUNT
 } AST_TYPE;
@@ -98,9 +99,9 @@ typedef struct {
 
 typedef struct {
     ASTBase base;          /* MUST be first */
-    char op;
     ASTBase* lhs;
     ASTBase* rhs;
+    char op[3];
 } BinOp;
 
 
@@ -156,9 +157,9 @@ typedef struct {
    ================================ */
 
 typedef struct {
-    ASTBase base;          /* MUST be first */
-    const char* name;
-    ASTBase** args;
+    ASTBase base;
+    ASTBase* callee;    // Usually an AST_IDENTIFIER
+    ASTBase** args;     // Array of expressions
     size_t arg_count;
 } Call;
 
@@ -186,5 +187,37 @@ typedef struct {
 } WhileStmt;
 
 
+typedef struct {
+    char* name;
+    size_t name_len;
+    ValueType type;
+} Parameter;
+
+typedef struct {
+    Parameter* params;      // Array of parameter names
+    size_t param_count;
+    ASTBase* body;      // The Block AST node to execute
+    // Optional: Env* closure; // If you want to support closures later
+} UserFunc;
+
+typedef struct Function {
+    bool is_native;
+    int arity;
+    const char* name;
+    size_t name_len;
+    union {
+        NativeFn native;
+        UserFunc user;
+    };
+} Function;
+
+typedef struct {
+    ASTBase base;
+    char* name;
+    size_t name_len;
+    Parameter* params;
+    size_t param_count;
+    ASTBase* body; // Usually an AST_BLOCK
+} FnDecl;
 
 #endif /* AST_H */

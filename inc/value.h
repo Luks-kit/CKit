@@ -62,10 +62,6 @@ struct Object;
 /* Native function pointer signature */
 typedef struct Value (*NativeFn)(struct Value* args, size_t arg_count);
 
-typedef struct Function {
-    NativeFn native;
-    void* userdata;   /* optional extension hook */
-} Function;
 
 
 /* ================================
@@ -82,7 +78,7 @@ typedef struct Value {
         String  s;
         Array*  arr;
         struct Object* object;
-        Function* function;
+        struct Function* function;
     };
 
 } Value;
@@ -108,7 +104,8 @@ static inline const char* type_to_string(ValueType type) {
         case VAL_BOOL:   return "bool";
         case VAL_STRING: return "str";
         case VAL_NULL:   return "null";
-        // ... add others
+        case VAL_ARRAY:  return "arr";
+        case VAL_FUNCTION: return "fn";
         default:         return "unknown";
     }
 }

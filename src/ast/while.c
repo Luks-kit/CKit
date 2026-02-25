@@ -3,8 +3,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-
-
 Value while_eval(ASTBase* base, EvalContext* ctx) {
     WhileStmt* node = (WhileStmt*)base;
     Value last_val = {.type = VAL_NULL};
@@ -17,6 +15,22 @@ Value while_eval(ASTBase* base, EvalContext* ctx) {
     }
 
     return last_val;
+}
+
+ValueType while_get_type(ASTBase* node, EvalContext* ctx) {
+    return VAL_NULL; // Loops usually don't "return" a value directly
+}
+
+bool while_validate(ASTBase* node, EvalContext* ctx) {
+    WhileStmt* w = (WhileStmt*)node;
+    
+    if (!ast_validate(w->condition, ctx)) return false;
+    if (ast_get_type(w->condition, ctx) != VAL_BOOL) {
+        fprintf(stderr, "Error: While condition must be bool.\n");
+        ctx->has_error = true; return false;
+    }
+
+    return ast_validate(w->body, ctx);
 }
 
 void while_print(ASTBase* base, EvalContext* ctx) {

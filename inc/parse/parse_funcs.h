@@ -6,7 +6,6 @@
 // Statements
 ASTBase* parse_stmt(Parser* parser);
 ASTBase* parse_block(Parser* parser);
-ASTBase* parse_assign(Parser* parser);
 ASTBase* parse_expr_stmt(Parser* parser);
 
 // Expressions
@@ -14,6 +13,7 @@ ASTBase* parse_expr(Parser* parser);
 ASTBase* parse_binary(Parser* parser, ASTBase* left);
 ASTBase* parse_grouping(Parser* parser);
 ASTBase* parse_unary(Parser* parser);
+ASTBase* parse_assign(Parser* parser, ASTBase* left);
 
 // Utilities
 bool match_token(Parser* parser, TokenType type);

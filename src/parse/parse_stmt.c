@@ -2,12 +2,13 @@
 #include "lexer.h"
 #include "parse_funcs.h"
 #include <stdlib.h>
+#include <string.h>
 #include "block.h"
-#include "assign.h"
-#include "ident.h"
 #include "if.h"
 #include "decl.h"
+#include "value.h"
 #include "while.h"
+#include "fndecl.h"
 
 ASTBase* parse_declaration(Parser* parser) {
     // The type token was already advanced in parse_stmt, so it's in 'previous'
@@ -23,6 +24,50 @@ ASTBase* parse_declaration(Parser* parser) {
 
     consume(parser, TOKEN_SEMICOLON, "Expect ';' after variable declaration.");
     return decl_new(target_type, name.start, name.length, initializer);
+}
+
+ValueType parse_type_keyword(Parser* parser) {
+    if (match_token(parser, TOKEN_INT))   return VAL_INT;
+    if (match_token(parser, TOKEN_STR))   return VAL_STRING;
+    if (match_token(parser, TOKEN_BOOL))  return VAL_BOOL;
+
+    // If we get here, the user wrote something like "fn add(not_a_type a)"
+    parser_error(parser, "Expect type identifier (int, str, bool).");
+    return VAL_NULL; 
+}
+
+ASTBase* parse_fn_declaration(Parser* parser) {
+    // 1. Function Name
+    consume(parser, TOKEN_IDENTIFIER, "Expect function name.");
+    Token name_tok = parser->previous;
+
+    // 2. Parameters
+    consume(parser, TOKEN_LPAREN, "Expect '(' after function name.");
+    
+    size_t count = 0;
+    Parameter* params = malloc(sizeof(Parameter) * 32); // Simple fixed-size for now
+
+    if (!check_token(parser, TOKEN_RPAREN)) {
+        do {
+            if (count >= 32) parser_error(parser, "Too many parameters.");
+
+            // Parameter looks like: "int a" or "str name"
+            ValueType p_type = parse_type_keyword(parser); // Helper to consume int/str/bool
+            consume(parser, TOKEN_IDENTIFIER, "Expect parameter name.");
+            
+            params[count].name = strndup(parser->previous.start, parser->previous.length);
+            params[count].name_len = parser->previous.length;
+            params[count].type = p_type;
+            count++;
+        } while (match_token(parser, TOKEN_COMMA));
+    }
+    consume(parser, TOKEN_RPAREN, "Expect ')' after parameters.");
+
+    // 3. Body
+    consume(parser, TOKEN_LBRACE, "Expect '{' before function body.");
+    ASTBase* body = parse_block(parser);
+
+    return fndecl_new(name_tok.start, name_tok.length, params, count, body);
 }
 
 ASTBase* parse_if(Parser* parser) {
@@ -68,25 +113,15 @@ ASTBase* parse_stmt(Parser* parser) {
         advance(parser); // Consume the type token
         return parse_declaration(parser);
     }
-
-    // Lookahead for assignment: IDENTIFIER followed by '='
-    if (check_token(parser, TOKEN_IDENTIFIER) && lexer_peek(&parser->lexer) == '=') {
-        return parse_assign(parser);
+    
+    if (check_token(parser, TOKEN_FN)){
+        advance(parser); // Consume the fn keyword
+        return parse_fn_declaration(parser);
     }
 
     return parse_expr_stmt(parser);
 }
 
-
-ASTBase* parse_assign(Parser* parser) {
-    advance(parser);
-    ASTBase* id = identifier_new(parser->previous.start, parser->previous.length);
-    consume(parser, TOKEN_ASSIGN, "Expect '=' after identifier.");
-    ASTBase* value = parse_expr(parser);
-    if (!check_token(parser, TOKEN_EOF)) 
-        consume(parser, TOKEN_SEMICOLON, "Expect ';' after value.");
-    return assign_new(id, value);
-}
 
 ASTBase* parse_expr_stmt(Parser* parser) {
     ASTBase* expr = parse_expr(parser);  

@@ -1,4 +1,6 @@
 #include "unop.h"
+#include "ast_runtime.h"
+#include "value.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -14,6 +16,22 @@ Value unop_eval(ASTBase* base, EvalContext* ctx)
     ctx->has_error = 1;
     ctx->error_message = "Invalid unary operation";
     return (Value){ .type = VAL_NULL };
+}
+
+ValueType unop_get_type(ASTBase *base, EvalContext *ctx) {
+    return ast_get_type( ((UnOp*)base)->operand, ctx);
+}
+
+bool unop_validate(ASTBase* node, EvalContext* ctx) {
+    UnOp* un = (UnOp*)node;
+    if (!ast_validate(un->operand, ctx)) return false;
+
+    Value val = ast_eval(un->operand, ctx);
+    if (un->op == '!' && val.type != VAL_BOOL) {
+        fprintf(stderr, "Error: '!' requires boolean operand\n");
+        ctx->has_error = true; return false;
+    }
+    return true;
 }
 
 void unop_print(ASTBase* base, EvalContext* ctx)

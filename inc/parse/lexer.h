@@ -35,6 +35,7 @@ typedef enum {
     TOKEN_MUL,         // *
     TOKEN_DIV,         // /
     TOKEN_ASSIGN,      // =
+    TOKEN_NEGATE,      // !
     TOKEN_LPAREN,      // (
     TOKEN_RPAREN,      // )
     TOKEN_LBRACE,      // {
@@ -45,9 +46,12 @@ typedef enum {
     // Comparison operators
     TOKEN_LT,          // <
     TOKEN_GT,          // >
+    TOKEN_LEQ,         // <=
+    TOKEN_GEQ,         // >= 
     TOKEN_EQ,          // ==
     TOKEN_NEQ,         // !=
-
+    
+    TOKEN_COMMA,
     TOKEN_UNKNOWN
 } TokenType;
 

@@ -14,15 +14,40 @@ Value decl_eval(ASTBase* base, EvalContext* ctx) {
         
         // TYPE CHECK:
         if (val.type != decl->type) {
-            fprintf(stderr, "Runtime TypeError: Cannot assign %d to variable of type %d\n",
-                    val.type, decl->type);
+            fprintf(stderr, "Runtime TypeError: Cannot assign %s to variable of type %s\n",
+                    type_to_string(val.type), type_to_string(decl->type));
             ctx->has_error = true;
             return (Value){ .type = VAL_NULL};
         }
+    } else {
+        // Provide "Zero" values for strong typing
+        val.type = decl->type;
+        if (val.type == VAL_INT) val.i = 0;
+        else if (val.type == VAL_BOOL) val.b = false;
+        else if (val.type == VAL_STRING) { val.s.data = NULL; val.s.length = 0; }
     }
 
     env_set(ctx->current_env, decl->name, decl->name_len, val);
     return val;
+}
+
+ValueType decl_get_type(ASTBase* node, EvalContext* ctx) {
+    return ((Declaration*)node)->type;
+}
+
+bool decl_validate(ASTBase* node, EvalContext* ctx) {
+    Declaration* decl = (Declaration*)node;
+    if (decl->initializer) {
+        if (!ast_validate(decl->initializer, ctx)) return false;
+        if (ast_get_type(decl->initializer, ctx) != decl->type) {
+            fprintf(stderr, "Type Error: Initializer mismatch for '%.*s'.\n", (int)decl->name_len, decl->name);
+            ctx->has_error = true; return false;
+        }
+    }
+    // Register the variable in the env so future lines can validate against it
+    Value placeholder = { .type = decl->type };
+    env_set(ctx->current_env, decl->name, decl->name_len, placeholder);
+    return true;
 }
 
 void decl_print(ASTBase* base, EvalContext* ctx) {

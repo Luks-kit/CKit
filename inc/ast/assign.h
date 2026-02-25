@@ -7,6 +7,8 @@
 
 Value assign_eval(ASTBase* base, EvalContext* ctx);
 void  assign_print(ASTBase* base, EvalContext* ctx);
+bool  assign_validate(ASTBase* base, EvalContext* ctx);
+ValueType assign_get_type(ASTBase* base, EvalContext* ctx);
 
 ASTBase* assign_new(ASTBase* target, ASTBase* value);
 void assign_destroy(ASTBase* node, EvalContext* ctx);

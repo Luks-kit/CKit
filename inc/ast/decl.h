@@ -6,6 +6,8 @@
 
 Value decl_eval(ASTBase* base, EvalContext* ctx);
 void decl_print(ASTBase* base, EvalContext* ctx);
+bool decl_validate(ASTBase* base, EvalContext* ctx);
+ValueType decl_get_type(ASTBase* base, EvalContext* ctx);
 
 ASTBase* decl_new(ValueType type, const char* name, size_t len, ASTBase* init);
 void decl_destroy(ASTBase* base, EvalContext* ctx);

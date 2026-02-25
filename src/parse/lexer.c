@@ -89,7 +89,8 @@ Token lex_identifier(Lexer* lexer) {
     KEYWORD("bool",  TOKEN_BOOL);
     KEYWORD("true",  TOKEN_BOOL_LITERAL);
     KEYWORD("false", TOKEN_BOOL_LITERAL);
-    
+    KEYWORD("fn",    TOKEN_FN);
+
     #undef KEYWORD
     return make_token(lexer, TOKEN_IDENTIFIER);
 }
@@ -130,13 +131,22 @@ Token lexer_next_token(Lexer* lexer) {
             { lexer_advance(lexer); return make_token(lexer, TOKEN_EQ); }
             else return make_token(lexer, TOKEN_ASSIGN);
         case '!':
-            if (lexer_peek(lexer) == '=') 
+            if (lexer_peek(lexer) == '=')
             { lexer_advance(lexer); return make_token(lexer, TOKEN_NEQ); }
-            break;
+            else return make_token(lexer, TOKEN_NEGATE);
+        case '<': 
+            if (lexer_peek(lexer) == '=') 
+            { lexer_advance(lexer); return make_token(lexer, TOKEN_LEQ); }
+            else return make_token(lexer, TOKEN_LT);
+        case '>': 
+            if (lexer_peek(lexer) == '=')
+            { lexer_advance(lexer); return make_token(lexer, TOKEN_GEQ); }
+            else return make_token(lexer, TOKEN_GT);
         case '(': return make_token(lexer, TOKEN_LPAREN);
         case ')': return make_token(lexer, TOKEN_RPAREN);
         case '{': return make_token(lexer, TOKEN_LBRACE);
         case '}': return make_token(lexer, TOKEN_RBRACE);
+        case ',': return make_token(lexer, TOKEN_COMMA);
         case ';': return make_token(lexer, TOKEN_SEMICOLON);
     }
 

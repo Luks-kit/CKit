@@ -8,7 +8,6 @@ Value block_eval(ASTBase* base, EvalContext* ctx)
 {
     Block* block = (Block*)base;
     /* Push new lexical scope */
-
     Env* old_env = ctx->current_env;
     if(!block->is_global) ctx->current_env = env_push(old_env);
 
@@ -23,6 +22,31 @@ Value block_eval(ASTBase* base, EvalContext* ctx)
     if(!block->is_global) ctx->current_env = env_pop(ctx->current_env);
 
     return result;
+}
+
+ValueType block_get_type(ASTBase* node, EvalContext* ctx) {
+    Block* b = (Block*)node;
+    if (b->count == 0) return VAL_NULL;
+    
+    // Evaluate the type of the last statement in the block
+    return ast_get_type(b->statements[b->count - 1], ctx);
+}
+
+
+bool block_validate(ASTBase* node, EvalContext* ctx) {
+    Block* b = (Block*)node;
+    Env* previous = ctx->current_env;
+    if (!b->is_global) ctx->current_env = env_push(previous); // Create validation scope
+
+    for (size_t i = 0; i < b->count; i++) {
+        if (!ast_validate(b->statements[i], ctx)) {
+            if (!b->is_global) ctx->current_env = env_pop(ctx->current_env);
+            return false;
+        }
+    }
+
+    if(!b->is_global) ctx->current_env = env_pop(ctx->current_env);
+    return true;
 }
 
 void block_print(ASTBase* base, EvalContext* ctx)

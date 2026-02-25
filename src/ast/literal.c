@@ -1,4 +1,5 @@
 #include "literal.h"
+#include "ast.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -30,6 +31,21 @@ Value literal_eval(ASTBase* base, EvalContext* ctx)
     }
 
     return (Value){ .type = VAL_NULL };
+}
+
+ValueType literal_get_type(ASTBase* node, EvalContext* ctx) {
+    if (!node) return VAL_NULL; 
+    Literal* lit = (Literal*)node;
+     switch (lit->lit_type) {
+         case(AST_LIT_INT): return VAL_INT;
+         case(AST_LIT_BOOL): return VAL_BOOL;
+         case(AST_LIT_FLOAT): return VAL_FLOAT;
+         case(AST_LIT_STR): return VAL_STRING; 
+    }
+}
+
+bool literal_validate(ASTBase* node, EvalContext* ctx) {
+    return true; // Ints, Bools, and Strings are structurally sound
 }
 
 void literal_print(ASTBase* base, EvalContext* ctx)

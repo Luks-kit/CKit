@@ -6,6 +6,9 @@
 
 Value if_eval(ASTBase* base, EvalContext* ctx);
 void if_print(ASTBase* base, EvalContext* ctx);
+bool if_validate(ASTBase* base, EvalContext* ctx);
+ValueType if_get_type(ASTBase* base, EvalContext* ctx);
+
 ASTBase* if_new(ASTBase* condition, ASTBase* true_branch, ASTBase* false_branch);
 void if_destroy(ASTBase* base, EvalContext* ctx);
 

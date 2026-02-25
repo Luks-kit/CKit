@@ -7,8 +7,9 @@
 
 Value binop_eval(ASTBase* base, EvalContext* ctx);
 void  binop_print(ASTBase* base, EvalContext* ctx);
-
-ASTBase* binop_new(char op, ASTBase* lhs, ASTBase* rhs);
+bool  binop_validate(ASTBase* base, EvalContext* ctx);
+ValueType binop_get_type(ASTBase* base, EvalContext* ctx);
+ASTBase* binop_new(ASTBase* lhs, ASTBase* rhs, const char* op_str, size_t len);
 void binop_destroy(ASTBase* node, EvalContext* ctx);
 
 #endif

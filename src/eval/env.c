@@ -26,6 +26,7 @@ Value env_lookup(Env* env, const char* name, size_t len) {
    Set variable in current env
    ================================ */
 void env_set(Env* env, const char* name, size_t len, Value val) {
+    
     for (size_t i = 0; i < env->count; i++) {
         EnvEntry* e = &env->entries[i];
         if (e->name_length == len &&
@@ -46,6 +47,22 @@ void env_set(Env* env, const char* name, size_t len, Value val) {
     env->entries[env->count].name_length = len;
     env->entries[env->count].value = val;
     env->count++;
+}
+
+bool env_assign(Env* env, const char* name, size_t len, Value val) {
+    Env* current = env;
+    while (current) {
+        for (size_t i = 0; i < current->count; i++) {
+            EnvEntry* e = &current->entries[i];
+            if (e->name_length == len && strncmp(e->name, name, len) == 0) {
+                // Found it! Update it here.
+                e->value = val;
+                return true; 
+            }
+        }
+        current = current->parent; // Look in the outer scope
+    }
+    return false; // Variable was never declared
 }
 
 /* ================================
@@ -70,7 +87,7 @@ Env* env_pop(Env* env) {
         // free() the duplicated strings
         free((void*)env->entries[i].name); 
     }
-
+    
     free(env->entries);
     Env* parent = env->parent;
     free(env);

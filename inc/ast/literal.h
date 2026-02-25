@@ -8,6 +8,8 @@
 /* Literal behavior */
 Value literal_eval(ASTBase* base, EvalContext* ctx);
 void  literal_print(ASTBase* base, EvalContext* ctx);
+bool literal_validate(ASTBase* node, EvalContext* ctx);
+ValueType literal_get_type(ASTBase* base, EvalContext* ctx);
 
 ASTBase* literal_new_int(long value);
 ASTBase* literal_new_float(double value);

@@ -22,8 +22,9 @@ add_executable(CKit
     src/ast/decl.c
     src/ast/if.c
     src/ast/while.c
+    src/ast/fndecl.c
 	src/eval/env.c
-	src/register.c
+    src/register.c
 	src/main.c
 	src/parse/lexer.c
 	src/parse/parse_expr.c

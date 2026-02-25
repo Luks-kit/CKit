@@ -15,11 +15,14 @@ typedef struct {
 typedef enum {
     PREC_NONE,
     PREC_ASSIGN,  // =
-    PREC_EQUALITY,// == !=
-    PREC_COMPARISON, // < >
-    PREC_TERM,    // + -
-    PREC_FACTOR,  // * /
-    PREC_UNARY,   // -x
+    PREC_OR,          // or
+    PREC_AND,         // and
+    PREC_EQUALITY,    // == !=
+    PREC_COMPARISON,  // < > <= >=
+    PREC_TERM,        // + -
+    PREC_FACTOR,      // * /
+    PREC_UNARY,       // ! -
+    PREC_CALL,        // . () []  <-- Right at the top
     PREC_PRIMARY
 } Precedence;
 
