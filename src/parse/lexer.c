@@ -21,8 +21,6 @@ void lexer_skip_whitespace(Lexer* lexer) {
             case ' ':
             case '\r':
             case '\t':
-                lexer_advance(lexer);
-                break;
             case '\n':
                 lexer_advance(lexer);
                 break;
@@ -90,7 +88,7 @@ Token lex_identifier(Lexer* lexer) {
     KEYWORD("true",  TOKEN_BOOL_LITERAL);
     KEYWORD("false", TOKEN_BOOL_LITERAL);
     KEYWORD("fn",    TOKEN_FN);
-
+    KEYWORD("null",  TOKEN_NULL);
     #undef KEYWORD
     return make_token(lexer, TOKEN_IDENTIFIER);
 }

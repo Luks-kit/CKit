@@ -1,4 +1,5 @@
 #include "call.h"
+#include "value.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -54,8 +55,23 @@ Value call_eval(ASTBase* base, EvalContext* ctx) {
     return result;
 }
 
-ValueType call_get_type(ASTBase* base, EvalContext* ctx) {
-    return VAL_NULL; 
+ValueType call_get_type(ASTBase* node, EvalContext* ctx) {
+    Call* call = (Call*)node;
+    // We get the type of the callee (the identifier)
+    if (call->callee->type == AST_IDENTIFIER) {
+        Identifier* id = (Identifier*)call->callee;
+        
+        // Lookup the symbol's metadata, NOT its value
+        Value symbol = env_lookup(ctx->current_env, id->name, id->name_length);
+        
+        if (symbol.type == VAL_FUNCTION) {
+            return symbol.function->ret_type;
+        }
+    }
+    
+    ValueType callee_type = ast_get_type(call->callee, ctx);
+    return callee_type;
+
 }
 
 bool call_validate(ASTBase* node, EvalContext* ctx) {
@@ -133,6 +149,7 @@ void setup_globals(Env* global_env) {
     f->arity = 1; // Or make it variadic later
     f->name = "print";
     f->name_len = 5;
+    f->ret_type = VAL_NULL;
     Value v = {.type = VAL_FUNCTION, .function = f};
     env_set(global_env, "print", 5, v);
 }

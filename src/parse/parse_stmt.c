@@ -30,19 +30,27 @@ ValueType parse_type_keyword(Parser* parser) {
     if (match_token(parser, TOKEN_INT))   return VAL_INT;
     if (match_token(parser, TOKEN_STR))   return VAL_STRING;
     if (match_token(parser, TOKEN_BOOL))  return VAL_BOOL;
-
+    if (match_token(parser, TOKEN_FLOAT)) return VAL_FLOAT;
+    if (match_token(parser, TOKEN_NULL))  return VAL_NULL;
     // If we get here, the user wrote something like "fn add(not_a_type a)"
     parser_error(parser, "Expect type identifier (int, str, bool).");
     return VAL_NULL; 
 }
 
 ASTBase* parse_fn_declaration(Parser* parser) {
+   
+    //0. Return type
+
+    ValueType ret_type = parse_type_keyword(parser);
+
+
     // 1. Function Name
     consume(parser, TOKEN_IDENTIFIER, "Expect function name.");
     Token name_tok = parser->previous;
 
     // 2. Parameters
     consume(parser, TOKEN_LPAREN, "Expect '(' after function name.");
+   
     
     size_t count = 0;
     Parameter* params = malloc(sizeof(Parameter) * 32); // Simple fixed-size for now
@@ -67,7 +75,7 @@ ASTBase* parse_fn_declaration(Parser* parser) {
     consume(parser, TOKEN_LBRACE, "Expect '{' before function body.");
     ASTBase* body = parse_block(parser);
 
-    return fndecl_new(name_tok.start, name_tok.length, params, count, body);
+    return fndecl_new(name_tok.start, name_tok.length, params, count, ret_type, body);
 }
 
 ASTBase* parse_if(Parser* parser) {

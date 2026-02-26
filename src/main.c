@@ -10,62 +10,93 @@
 
 #define LINE_BUFFER_SIZE 1024
 
+int count_nesting_depth(const char* input) {
+    int depth = 0;
+    for (int i = 0; input[i] != '\0'; i++) {
+        if (input[i] == '{' || input[i] == '(' || input[i] == '[') {
+            depth++;
+        } else if (input[i] == '}' || input[i] == ')' || input[i] == ']') {
+            depth--;
+        }
+    }
+    return depth;
+}
+
 void run_repl(EvalContext* ctx) {
     char line[LINE_BUFFER_SIZE];
+    // A larger buffer to accumulate multi-line input
+    char total_input[LINE_BUFFER_SIZE * 10] = {0}; 
+    int brace_balance = 0;
 
     printf("CKit REPL (v0.1)\n");
     printf("Press Ctrl+C to exit.\n");
 
     for (;;) {
-        printf("> ");
+        // Change prompt if we are inside a block
+        printf(brace_balance > 0 ? ".. " : "> ");
 
         if (!fgets(line, sizeof(line), stdin)) {
             printf("\n");
             break;
         }
 
-        // Handle empty input
-	// 1. Strip the newline so the Lexer hits '\0' (EOF) immediately after the code
-        line[strcspn(line, "\n")] = '\0';
+        // 1. Update brace balance before parsing
+        for (int i = 0; line[i] != '\0'; i++) {
+            if (line[i] == '{') brace_balance++;
+            if (line[i] == '}') brace_balance--;
+        }
 
-        if (strlen(line) == 0) continue;
-        if (strcmp(line, "exit") == 0) break;
+        // 2. Accumulate the input
+        strcat(total_input, line);
 
+        // 3. Only evaluate if braces are balanced
+        if (brace_balance > 0) {
+            continue; 
+        }
 
-        // Initialize components
-        Parser parser;
-        lexer_init(&parser.lexer, line);
-        parser.had_error = false;
+        if (strlen(total_input) == 0 || strcmp(total_input, "\n") == 0) {
+            total_input[0] = '\0';
+            continue;
+        }
         
-        // Use your parse_program entry point
+        if (strncmp(total_input, "exit", 4) == 0) break;
+
+        // --- Lex and Parse the accumulated buffer ---
+        Parser parser;
+        lexer_init(&parser.lexer, total_input);
+        parser.had_error = false;
+
         ASTBase* program = parse_program(&parser);
 
-        if (parser.had_error || program == NULL) 
-        {printf("Parser error, skipping execution\n"); parser.had_error = false; continue;}
+        if (parser.had_error || program == NULL) {
+            printf("Parser error, skipping execution\n");
+        }
         
-        if(!ast_validate(program, ctx) || ctx->has_error)
-        {printf("Sematic error: %s\n", ctx->error_message); ctx->has_error = false; continue;}
-
-        // Optional: Print the tree for debugging
+        if (!ast_validate(program, ctx) || ctx->has_error) {
+            printf("Semantic error: %s\n", ctx->error_message);
+            ctx->has_error = false;
+        }    
         printf("AST: ");
         ast_print(program, ctx);
         printf("\n");
-        
 
-        // Evaluate the program
         Value result = ast_eval(program, ctx);
         printf("Result: ");
-        
+
         switch (result.type) {
             case (VAL_INT): {printf("%ld\n", result.i); break;}
             case (VAL_FLOAT): {printf("%f\n", result.f); break;}
             case (VAL_BOOL): {printf("%s\n", result.b ? "[true]" : "[false]"); break;}
             case (VAL_STRING): {printf("%.*s\n", (int)result.s.length ,result.s.data); break;}
             case (VAL_NULL): {printf("Null Type(Nothing)\n"); break;}
+            case (VAL_FUNCTION): {printf("Function %s\n", type_to_string(result.function->ret_type)); break;}
             default: {printf("Unimplemented type\n"); break; }
-        }
-
+        } 
         if (program) ast_dtor(program, ctx);
+
+        // 4. Reset for next command
+        memset(&total_input, 0, LINE_BUFFER_SIZE * 10);
+        brace_balance = 0; 
     }
 }
 

@@ -1,6 +1,7 @@
 #include "block.h"
 #include "eval_context.h"
 #include "env.h"
+#include "value.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -25,11 +26,7 @@ Value block_eval(ASTBase* base, EvalContext* ctx)
 }
 
 ValueType block_get_type(ASTBase* node, EvalContext* ctx) {
-    Block* b = (Block*)node;
-    if (b->count == 0) return VAL_NULL;
-    
-    // Evaluate the type of the last statement in the block
-    return ast_get_type(b->statements[b->count - 1], ctx);
+    return ((Block*)node)->inferred_type;
 }
 
 
@@ -37,13 +34,17 @@ bool block_validate(ASTBase* node, EvalContext* ctx) {
     Block* b = (Block*)node;
     Env* previous = ctx->current_env;
     if (!b->is_global) ctx->current_env = env_push(previous); // Create validation scope
+    
+    ValueType last_type = VAL_NULL;
 
     for (size_t i = 0; i < b->count; i++) {
         if (!ast_validate(b->statements[i], ctx)) {
             if (!b->is_global) ctx->current_env = env_pop(ctx->current_env);
             return false;
         }
+        last_type = ast_get_type(b->statements[i], ctx);
     }
+    b->inferred_type = last_type;
 
     if(!b->is_global) ctx->current_env = env_pop(ctx->current_env);
     return true;

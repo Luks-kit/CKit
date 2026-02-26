@@ -132,6 +132,7 @@ typedef struct {
     ASTBase** statements;
     size_t count;
     bool is_global;
+    ValueType inferred_type;
 } Block;
 
 
@@ -165,7 +166,7 @@ typedef struct {
 
 typedef struct {
     ASTBase base;
-    ValueType type;      // The "Strong" part of the typing
+    ValueType type;      
     const char* name;
     size_t name_len;
     ASTBase* initializer; // Optional (e.g., int x; vs int x = 5;)
@@ -205,6 +206,7 @@ typedef struct Function {
     int arity;
     const char* name;
     size_t name_len;
+    ValueType ret_type;
     union {
         NativeFn native;
         UserFunc user;
@@ -217,6 +219,7 @@ typedef struct {
     size_t name_len;
     Parameter* params;
     size_t param_count;
+    ValueType ret_type;
     ASTBase* body; // Usually an AST_BLOCK
 } FnDecl;
 

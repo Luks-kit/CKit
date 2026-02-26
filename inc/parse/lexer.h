@@ -27,6 +27,7 @@ typedef enum {
     TOKEN_FLOAT, 
     TOKEN_BOOL, 
     TOKEN_STR, 
+    TOKEN_NULL,
     TOKEN_PRINT,
     
     // Operators
